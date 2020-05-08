@@ -140,3 +140,107 @@ add_custom_command(
 
 set_directory_properties(PROPERTIES VS_STARTUP_PROJECT ${TARGET})
 source_group(TREE "${CMAKE_SOURCE_DIR}/renderer" FILES ${HEADERS} ${SOURCES})
+
+
+# ============================================================================================================================================= #
+# New TARGET
+# ============================================================================================================================================= #
+
+
+# ============================================================================================================================================= #
+# Headers and sources
+# ============================================================================================================================================= #
+
+set(HEADERS_SOFT_RENDERER
+	soft-renderer/core/api.h
+	soft-renderer/tests/test_helper.h
+)
+set(SOURCES_SOFT_RENDERER
+    soft-renderer/main.c
+	soft-renderer/tests/test_helper.c
+)
+
+if(WIN32)
+    set(SOURCES_SOFT_RENDERER ${SOURCES_SOFT_RENDERER} soft-renderer/platforms/win32.c)
+elseif(APPLE)
+    set(SOURCES_SOFT_RENDERER ${SOURCES_SOFT_RENDERER} soft-renderer/platforms/macos.m)
+else()
+    set(SOURCES_SOFT_RENDERER ${SOURCES_SOFT_RENDERER} soft-renderer/platforms/linux.c)
+endif()
+
+# ==============================================================================
+# Target definition
+# ==============================================================================
+
+set(TARGET_SOFT_RENDERER Viewer_SOFT_VIEWER)
+
+add_executable(${TARGET_SOFT_RENDERER} ${HEADERS_SOFT_RENDERER} ${SOURCES_SOFT_RENDERER})
+
+# ==============================================================================
+# Target properties
+# ==============================================================================
+
+set_target_properties(${TARGET_SOFT_RENDERER} PROPERTIES C_STANDARD 90)
+set_target_properties(${TARGET_SOFT_RENDERER} PROPERTIES C_EXTENSIONS OFF)
+set_target_properties(${TARGET_SOFT_RENDERER} PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON)
+
+# ==============================================================================
+# Compile options
+# ==============================================================================
+
+if(MSVC)
+    target_compile_options(${TARGET_SOFT_RENDERER} PRIVATE /W4 /D_CRT_SECURE_NO_WARNINGS)
+    target_compile_options(${TARGET_SOFT_RENDERER} PRIVATE /fp:fast)
+else()
+    target_compile_options(${TARGET_SOFT_RENDERER} PRIVATE -Wall -Wextra -pedantic)
+    target_compile_options(${TARGET_SOFT_RENDERER} PRIVATE -ffast-math)
+endif()
+
+if(UNIX AND NOT APPLE)
+    target_compile_options(${TARGET_SOFT_RENDERER} PRIVATE -D_POSIX_C_SOURCE=200809L)
+endif()
+
+# ==============================================================================
+# Link libraries
+# ==============================================================================
+
+if(WIN32)
+    # nothing to do for now
+elseif(APPLE)
+    target_link_libraries(${TARGET_SOFT_RENDERER} PRIVATE "-framework Cocoa")
+else()
+    target_link_libraries(${TARGET_SOFT_RENDERER} PRIVATE m X11)
+endif()
+
+# ==============================================================================
+# Asset files
+# ==============================================================================
+
+set(ASSETS_SRC_SOFT_RENDERER "${CMAKE_SOURCE_DIR}/assets")
+set(ASSETS_DST_SOFT_RENDERER "$<TARGET_FILE_DIR:${TARGET_SOFT_RENDERER}>/assets")
+
+if(WIN32)
+    set(ASSETS_CMD_SOFT_RENDERER copy_directory)
+    set(ASSETS_MSG_SOFT_RENDERER "Copy assets")
+else()
+    set(ASSETS_CMD_SOFT_RENDERER create_symlink)
+    set(ASSETS_MSG_SOFT_RENDERER "Link assets")
+endif()
+
+add_custom_command(
+    TARGET ${TARGET_SOFT_RENDERER} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E echo
+    "${ASSETS_MSG_SOFT_RENDERER}: ${ASSETS_SRC_SOFT_RENDERER} to ${ASSETS_DST_SOFT_RENDERER}"
+)
+add_custom_command(
+    TARGET ${TARGET_SOFT_RENDERER} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E ${ASSETS_CMD_SOFT_RENDERER}
+    "${ASSETS_SRC_SOFT_RENDERER}" "${ASSETS_DST_SOFT_RENDERER}"
+)
+
+# ==============================================================================
+# IDE support
+# ==============================================================================
+
+set_directory_properties(PROPERTIES VS_STARTUP_PROJECT ${TARGET_SOFT_RENDERER})
+source_group(TREE "${CMAKE_SOURCE_DIR}/soft-renderer" FILES ${HEADERS_SOFT_RENDERER} ${SOURCES_SOFT_RENDERER})
