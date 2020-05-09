@@ -153,11 +153,19 @@ source_group(TREE "${CMAKE_SOURCE_DIR}/renderer" FILES ${HEADERS} ${SOURCES})
 
 set(HEADERS_SOFT_RENDERER
 	soft-renderer/core/api.h
+	soft-renderer/core/Image.h
+	soft-renderer/core/platform.h
+	soft-renderer/core/macro.h
+	soft-renderer/core/scene.h
+	soft-renderer/scenes/basic_scenes.h
 	soft-renderer/tests/test_helper.h
+	soft-renderer/tests/test_basic.h
 )
 set(SOURCES_SOFT_RENDERER
     soft-renderer/main.c
+	soft-renderer/scenes/basic_scenes.c
 	soft-renderer/tests/test_helper.c
+	soft-renderer/tests/test_basic.c
 )
 
 if(WIN32)
