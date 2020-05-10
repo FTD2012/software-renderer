@@ -3,7 +3,7 @@
 #include <direct.h>
 #include <windows.h>
 #include <stdio.h>
-
+#include "../core/graphics.h"
 #include "../core/Image.h"
 #include "../core/platform.h"
 #include "../core/macro.h"
@@ -125,6 +125,45 @@ static HWND create_window(const char *title_, int width, int height) {
 	return handle;
 }
 
+/*
+ * for memory device context, see
+ * https://docs.microsoft.com/en-us/windows/desktop/gdi/memory-device-contexts
+ */
+static void create_surface(HWND handle, int width, int height,
+	image_t **out_surface, HDC *out_memory_dc) {
+	BITMAPINFOHEADER bi_header;
+	HBITMAP dib_bitmap;
+	HBITMAP old_bitmap;
+	HDC window_dc;
+	HDC memory_dc;
+	image_t *surface;
+
+	surface = image_create(width, height, 4, FORMAT_LDR);
+	free(surface->ldr_buffer);
+	surface->ldr_buffer = NULL;
+
+	window_dc = GetDC(handle);
+	memory_dc = CreateCompatibleDC(window_dc);
+	ReleaseDC(handle, window_dc);
+
+	memset(&bi_header, 0, sizeof(BITMAPINFOHEADER));
+	bi_header.biSize = sizeof(BITMAPINFOHEADER);
+	bi_header.biWidth = width;
+	bi_header.biHeight = -height;  /* top-down */
+	bi_header.biPlanes = 1;
+	bi_header.biBitCount = 32;
+	bi_header.biCompression = BI_RGB;
+	dib_bitmap = CreateDIBSection(memory_dc, (BITMAPINFO*)&bi_header,
+		DIB_RGB_COLORS, (void**)&surface->ldr_buffer,
+		NULL, 0);
+	assert(dib_bitmap != NULL);
+	old_bitmap = (HBITMAP)SelectObject(memory_dc, dib_bitmap);
+	DeleteObject(old_bitmap);
+
+	*out_surface = surface;
+	*out_memory_dc = memory_dc;
+}
+
 window_t *window_create(const char *title, int width, int height) {
 	window_t *window;
 	HWND handle;
@@ -134,13 +173,13 @@ window_t *window_create(const char *title, int width, int height) {
 	assert(g_initialized && width > 0 && height > 0);
 
 	handle = create_window(title, width, height);
-	//create_surface(handle, width, height, &surface, &memory_dc);
+	create_surface(handle, width, height, &surface, &memory_dc);
 
 	window = (window_t*)malloc(sizeof(window_t));
 	memset(window, 0, sizeof(window_t));
 	window->handle = handle;
-	//window->memory_dc = memory_dc;
-	//window->surface = surface;
+	window->memory_dc = memory_dc;
+	window->surface = surface;
 
 	SetProp(handle, WINDOW_ENTRY_NAME, window);
 	ShowWindow(handle, SW_SHOW);
@@ -154,13 +193,36 @@ void window_destroy(window_t *window) {
 	DeleteDC(window->memory_dc);
 	DestroyWindow(window->handle);
 
-	//window->surface->ldr_buffer = NULL;
-	//image_release(window->surface);
+	window->surface->ldr_buffer = NULL;
+	image_release(window->surface);
 	free(window);
 }
 
 int window_should_close(window_t *window) {
 	return window->should_close;
+}
+
+void window_set_userdata(window_t *window, void *userdata) {
+	window->userdata = userdata;
+}
+
+void *window_get_userdata(window_t *window) {
+	return window->userdata;
+}
+
+static void present_surface(window_t *window) {
+	HDC window_dc = GetDC(window->handle);
+	HDC memory_dc = window->memory_dc;
+	image_t *surface = window->surface;
+	int width = surface->width;
+	int height = surface->height;
+	BitBlt(window_dc, 0, 0, width, height, memory_dc, 0, 0, SRCCOPY);
+	ReleaseDC(window->handle, window_dc);
+}
+
+void window_draw_buffer(window_t *window, framebuffer_t *buffer) {
+	private_blit_bgr(buffer, window->surface);
+	present_surface(window);
 }
 
 void input_poll_events(void) {
@@ -170,6 +232,8 @@ void input_poll_events(void) {
 		DispatchMessage(&message);
 	}
 }
+
+
 
 /* misc platform functions */
 

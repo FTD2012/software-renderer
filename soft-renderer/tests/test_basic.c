@@ -5,11 +5,17 @@
 
 static creator_t g_creators[] = {
 	{"basic_point", basic_point_scene}
-
 };
 
 static void tick_function(context_t *context, void *userdata) {
-
+	static int delta = 0;
+	for (int i = 0; i < context->framebuffer->width * context->framebuffer->height; i++) {
+		context->framebuffer->color_buffer[i * 4 + 0] = delta % 255;
+		context->framebuffer->color_buffer[i * 4 + 1] = delta % 255;
+		context->framebuffer->color_buffer[i * 4 + 2] = delta % 255;
+		context->framebuffer->color_buffer[i * 4 + 3] = delta % 255;
+	}
+	delta++;
 }
 
 void test_basic(int argc, char *argv[]) {

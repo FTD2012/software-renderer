@@ -1,7 +1,9 @@
 #pragma once
 #include "../core/scene.h"
+#include "../core/graphics.h"
 
 typedef struct {
+	framebuffer_t *framebuffer;
 	float frame_time;
 	float delta_time;
 } context_t;
