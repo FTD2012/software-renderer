@@ -3,22 +3,11 @@
 #include <direct.h>
 #include <windows.h>
 #include <stdio.h>
+#include "../core/private.h"
 #include "../core/graphics.h"
 #include "../core/Image.h"
 #include "../core/platform.h"
 #include "../core/macro.h"
-
-struct window {
-	HWND handle;
-	HDC memory_dc;
-	image_t *surface;
-	/* common data */
-	int should_close;
-	char keys[KEY_NUM];
-	char buttons[BUTTON_NUM];
-	callbacks_t callbacks;
-	void *userdata;
-};
 
 #ifdef UNICODE
 static const wchar_t *WINDOW_CLASS_NAME = L"Class";
@@ -30,6 +19,30 @@ static const char *WINDOW_ENTRY_NAME = "Entry";
 
 static int g_initialized = 0;
 
+/*
+ * for virtual-key codes, see
+ * https://docs.microsoft.com/en-us/windows/desktop/inputdev/virtual-key-codes
+ */
+static void handle_key_message(window_t *window, WPARAM virtual_key,
+	char pressed) {
+	keycode_t key;
+	switch (virtual_key) {
+	case 'A':      key = KEY_A;     break;
+	case 'D':      key = KEY_D;     break;
+	case 'S':      key = KEY_S;     break;
+	case 'W':      key = KEY_W;     break;
+	case 0x1B:     key = KEY_ESC;   break;
+	case VK_SPACE: key = KEY_SPACE; break;
+	default:       key = KEY_NUM;   break;
+	}
+	if (key < KEY_NUM) {
+		window->keys[key] = pressed;
+		if (window->callbacks.key_callback) {
+			window->callbacks.key_callback(window, key, pressed);
+		}
+	}
+}
+
 static LRESULT CALLBACK process_message(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	window_t *window = (window_t*)GetProp(hWnd, WINDOW_ENTRY_NAME);
 	if (uMsg != WM_PAINT) {
@@ -37,12 +50,16 @@ static LRESULT CALLBACK process_message(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 	}
 	if (window == NULL) {
 		return DefWindowProc(hWnd, uMsg, wParam, lParam);
-	}
-	else if (uMsg == WM_CLOSE) {
+	} else if (uMsg == WM_KEYDOWN) {
+		handle_key_message(window, wParam, 1);
+		return 0;
+	} else if (uMsg == WM_KEYUP) {
+		handle_key_message(window, wParam, 0);
+		return 0;
+	} else if (uMsg == WM_CLOSE) {
 		window->should_close = 1;
 		return 0;
-	}
-	else {
+	} else {
 		return DefWindowProc(hWnd, uMsg, wParam, lParam);
 	}
 }
@@ -202,6 +219,10 @@ int window_should_close(window_t *window) {
 	return window->should_close;
 }
 
+void window_set_close(window_t *window, int close) {
+	window->should_close = close;
+}
+
 void window_set_userdata(window_t *window, void *userdata) {
 	window->userdata = userdata;
 }
@@ -233,7 +254,9 @@ void input_poll_events(void) {
 	}
 }
 
-
+void input_set_callbacks(window_t *window, callbacks_t callbacks) {
+	window->callbacks = callbacks;
+}
 
 /* misc platform functions */
 

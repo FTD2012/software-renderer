@@ -154,6 +154,7 @@ source_group(TREE "${CMAKE_SOURCE_DIR}/renderer" FILES ${HEADERS} ${SOURCES})
 set(HEADERS_SOFT_RENDERER
 	soft-renderer/core/api.h
 	soft-renderer/core/image.h
+	soft-renderer/core/private.h
 	soft-renderer/core/platform.h
 	soft-renderer/core/macro.h
 	soft-renderer/core/scene.h
