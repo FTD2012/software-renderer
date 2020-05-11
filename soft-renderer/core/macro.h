@@ -2,6 +2,7 @@
 
 
 #define LINE_SIZE 256
+#define PATH_SIZE 256
 
 #define UNUSED_VAR(x) ((void)(x))
 

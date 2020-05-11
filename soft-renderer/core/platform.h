@@ -1,9 +1,5 @@
 #pragma once
 
-#if defined(WIN32)
-#include <windows.h>
-#endif
-
 #include "graphics.h"
 #include "image.h"
 
@@ -15,20 +11,6 @@ typedef struct {
 	void(*button_callback)(window_t *window, button_t button, int pressed);
 	void(*scroll_callback)(window_t *window, float offset);
 } callbacks_t;
-
-#if defined(WIN32)
-struct window {
-		HWND handle;
-		HDC memory_dc;
-		image_t *surface;
-		/* common data */
-		int should_close;
-		char keys[KEY_NUM];
-		char buttons[BUTTON_NUM];
-		callbacks_t callbacks;
-		void *userdata;
-};
-#endif
 
 /* platform initialization */
 void platform_initialize(void);

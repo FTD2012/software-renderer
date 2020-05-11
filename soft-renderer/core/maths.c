@@ -1,4 +1,3 @@
-#pragma once
 #include "maths.h"
 
 float float_saturate(float f) {

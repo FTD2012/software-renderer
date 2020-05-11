@@ -19,6 +19,18 @@ static const char *WINDOW_ENTRY_NAME = "Entry";
 
 static int g_initialized = 0;
 
+struct window {
+		HWND handle;
+		HDC memory_dc;
+		image_t *surface;
+		/* common data */
+		int should_close;
+		char keys[KEY_NUM];
+		char buttons[BUTTON_NUM];
+		callbacks_t callbacks;
+		void *userdata;
+};
+
 /*
  * for virtual-key codes, see
  * https://docs.microsoft.com/en-us/windows/desktop/inputdev/virtual-key-codes
