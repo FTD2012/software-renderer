@@ -161,6 +161,7 @@ set(HEADERS_SOFT_RENDERER
 	soft-renderer/core/graphics.h
 	soft-renderer/core/maths.h
 	soft-renderer/core/darray.h
+	soft-renderer/core/draw2d.h
 	soft-renderer/scenes/basic_scenes.h
 	soft-renderer/scenes/scene_helper.h
 	soft-renderer/tests/test_helper.h
@@ -172,6 +173,7 @@ set(SOURCES_SOFT_RENDERER
 	soft-renderer/core/maths.c
 	soft-renderer/core/graphics.c
 	soft-renderer/core/darray.c
+	soft-renderer/core/draw2d.c
     soft-renderer/main.c
 	soft-renderer/scenes/basic_scenes.c
 	soft-renderer/scenes/scene_helper.c

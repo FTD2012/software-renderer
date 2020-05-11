@@ -8,6 +8,7 @@ static creator_t g_creators[] = {
 };
 
 static void tick_function(context_t *context, void *userdata) {
+	// back ground
 	static int delta = 0;
 	for (int i = 0; i < context->framebuffer->width * context->framebuffer->height; i++) {
 		context->framebuffer->color_buffer[i * 4 + 0] = delta % 255;
@@ -16,6 +17,12 @@ static void tick_function(context_t *context, void *userdata) {
 		context->framebuffer->color_buffer[i * 4 + 3] = delta % 255;
 	}
 	delta++;
+
+	for (int j = 0; j < 500; j++) {
+		float cow = j*1.0 / context->framebuffer->width;
+		float col = j * 1.0 / context->framebuffer->height;
+		draw2d_draw_point(context->framebuffer, vec4_new(1, 1, 1, 1), vec2_new(cow, col));
+	}
 }
 
 void test_basic(int argc, char *argv[]) {

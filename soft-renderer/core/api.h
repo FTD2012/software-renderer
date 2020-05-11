@@ -7,3 +7,4 @@
 #include "macro.h"
 #include "msic.h"
 #include "darray.h"
+#include "draw2d.h"
