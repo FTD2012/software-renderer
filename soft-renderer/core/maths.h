@@ -5,6 +5,7 @@ typedef struct { float x, y, z; } vec3_t;
 typedef struct { float x, y, z, w; } vec4_t;
 typedef struct { float m[4][4]; } mat4_t;
 
+int max(int left, int right);
 float float_saturate(float f);
 unsigned char float_to_uchar(float value);
 

@@ -4,6 +4,10 @@ float float_saturate(float f) {
 	return f < 0 ? 0 : (f > 1 ? 1 : f);
 }
 
+int max(int left, int right) {
+    return left > right ? left : right;
+}
+
 unsigned char float_to_uchar(float value) {
 	return (unsigned char)(value * 255);
 }
