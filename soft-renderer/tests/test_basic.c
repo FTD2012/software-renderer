@@ -1,4 +1,5 @@
 #include <stddef.h>
+#include <math.h>
 #include "test_basic.h"
 #include "test_helper.h"
 #include "../scenes/basic_scenes.h"
@@ -17,14 +18,17 @@ static void tick_function(context_t *context, void *userdata) {
 		context->framebuffer->color_buffer[i * 4 + 2] = delta % 255;
 		context->framebuffer->color_buffer[i * 4 + 3] = delta % 255;
 	}
-	delta++;
+	//delta++;
 
-    draw2d_draw_line_dda(context->framebuffer, vec4_new(1, 0, 0, 1), vec2_new(0.25, 0.5), vec2_new(0.75, 0.5));
-    
+    draw2d_draw_line_dda(context->framebuffer, vec4_new(1, 0, 0, 1), vec2_new(0.25, 0.5), vec2_new(0.75, 0.8));
+    draw2d_draw_line(context->framebuffer, vec4_new(1, 0, 0, 1), vec2_new(0.15, 0.75), vec2_new(0.35, 0.65));
+    draw2d_draw_line(context->framebuffer, vec4_new(1, 0, 0, 1), vec2_new(0.15, 0.75), vec2_new(0.35, 0.15));
+	draw2d_draw_line(context->framebuffer, vec4_new(1, 0, 0, 1), vec2_new(20.0 / context->framebuffer->width, 10.0 / context->framebuffer->height), vec2_new(30.0 / context->framebuffer->width, 18.0 / context->framebuffer->height));
+   
 	for (j = 0; j < 500; j++) {
-		float cow = j*1.0 / context->framebuffer->width;
-		float col = j * 1.0 / context->framebuffer->height;
-		draw2d_draw_point(context->framebuffer, vec4_new(1, 1, 1, 1), vec2_new(cow, col));
+		float x = j * 2.0 / context->framebuffer->width;
+		float y = j * 1.0 / context->framebuffer->height;
+		draw2d_draw_point(context->framebuffer, vec4_new(1, 1, 1, 1), vec2_new(x, y));
 	}
 }
 
