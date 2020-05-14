@@ -129,3 +129,40 @@ void draw2d_draw_line(framebuffer_t *framebuffer, vec4_t color,
 
 	}
 }
+
+static draw_cirle_eight_point(framebuffer_t *framebuffer, unsigned char color_[4],
+							  int x, int y, int x0, int y0) {
+	draw_point(framebuffer, color_, x + x0, y + y0);
+	draw_point(framebuffer, color_, y + x0, x + y0);
+	draw_point(framebuffer, color_, -x + x0, y + y0);
+	draw_point(framebuffer, color_, -y + x0, x + y0);
+	draw_point(framebuffer, color_, x + x0, -y + y0);
+	draw_point(framebuffer, color_, y + x0, -x + y0);
+	draw_point(framebuffer, color_, -y + x0, -x + y0);
+	draw_point(framebuffer, color_, -x + x0, -y + y0);
+}
+
+void draw2d_draw_cirle(framebuffer_t *frambuffer, vec4_t color,
+					   vec2_t point, int r) {
+	unsigned char color_[4];
+	int x0, y0, x, y;
+	float pk;
+	convert_color(color, color_);
+	convert_point(frambuffer, point, &x0, &y0);
+
+	x = 0;
+	y = r;
+	pk = 5 / 4.0 - r;
+
+	draw_point(frambuffer, color_, x + x0, y + y0);
+	while (x <= y) {
+		x++;
+		pk += 2 * x + 1;
+		if (pk >=  0) {
+			y -= 1;
+			pk -= 2 * y;
+		}
+		draw_cirle_eight_point(frambuffer, color_, x , y, x0, y0);
+	}
+
+}

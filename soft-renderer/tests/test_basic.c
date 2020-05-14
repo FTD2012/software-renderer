@@ -24,7 +24,9 @@ static void tick_function(context_t *context, void *userdata) {
     draw2d_draw_line(context->framebuffer, vec4_new(1, 0, 0, 1), vec2_new(0.15, 0.75), vec2_new(0.35, 0.65));
     draw2d_draw_line(context->framebuffer, vec4_new(1, 0, 0, 1), vec2_new(0.15, 0.75), vec2_new(0.35, 0.15));
 	draw2d_draw_line(context->framebuffer, vec4_new(1, 0, 0, 1), vec2_new(20.0 / context->framebuffer->width, 10.0 / context->framebuffer->height), vec2_new(30.0 / context->framebuffer->width, 18.0 / context->framebuffer->height));
-   
+	draw2d_draw_cirle(context->framebuffer, vec4_new(1, 0, 0, 1), vec2_new(0.5, 0.5), 200);
+
+
 	for (j = 0; j < 500; j++) {
 		float x = j * 2.0 / context->framebuffer->width;
 		float y = j * 1.0 / context->framebuffer->height;
